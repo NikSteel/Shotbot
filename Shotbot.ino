@@ -4,14 +4,13 @@
 Adafruit_MCP23017 mcpA;
 Adafruit_MCP23017 mcpB;
 int dripCount = 6;
-const int Valve_Count = 10;
-const int Light_Count = 10;
-const int Button_Count = 10;
-const int dripMillisecondsOpen = 100;
-const int dripMillisecondsClosed = 100;
+const int dripMillisecondsOpen = 150;
+const int dripMillisecondsClosed = 300;
 const int blinkCount = 3;
 const int blinkMillisecondsOn = 500;
 const int blinkMillisecondsOff = 500;
+const int minPosition = 1;
+const int maxPosition = 10;
 
 void setup() {
   //set the I2C address for MCP chip A and B
@@ -32,28 +31,27 @@ void setup() {
 
 void loop() {
   //scan for a button press
-  int sequenceNumber = Button_Scan();
+  int position = Button_Scan();
 
   //blink the LED at the position of the button press
-  Light_Blink(sequenceNumber);
+  Light_Blink(position);
 
   //keep light on while pouring
-  Light_TurnOn(sequenceNumber);
+  Light_TurnOn(position);
 
   //pour specified number of drips
-  Valve_Drip(sequenceNumber, dripCount);
+  Valve_Drip(position, dripCount);
 
   //turn the light off
-  delay(blinkMillisecondsOn);
-  Light_TurnOff(sequenceNumber);
+  Light_TurnOff(position);
 
   //sanity check
   Valve_CloseAll();
   Light_TurnOffAll();
 }
 
-int Valve_GetPin(int sequenceNumber) {
-  switch (sequenceNumber) {
+int Valve_GetPin(int position) {
+  switch (position) {
     case 1:  return 1;
     case 2:  return 2;
     case 3:  return 3;
@@ -67,56 +65,56 @@ int Valve_GetPin(int sequenceNumber) {
   }
 }
 
-Adafruit_MCP23017& Valve_GetChip(int sequenceNumber) {
+Adafruit_MCP23017& Valve_GetChip(int position) {
   return mcpA;
 }
 
 void Valve_Setup() {
-  for (int i = 1; i <= Valve_Count; ++i) {
-    int pin = Valve_GetPin(i);
-    Adafruit_MCP23017& chip = Valve_GetChip(i);
+  for (int position = minPosition; position <= maxPosition; ++position) {
+    int pin = Valve_GetPin(position);
+    Adafruit_MCP23017& chip = Valve_GetChip(position);
     chip.pinMode(pin, OUTPUT);
   }
 }
 
-void Valve_Open(int sequenceNumber) {
-  int pin = Valve_GetPin(sequenceNumber);
-  Adafruit_MCP23017& chip = Valve_GetChip(sequenceNumber);
+void Valve_Open(int position) {
+  int pin = Valve_GetPin(position);
+  Adafruit_MCP23017& chip = Valve_GetChip(position);
   chip.digitalWrite(pin, HIGH);
 }
 
-void Valve_Close(int sequenceNumber) {
-  int pin = Valve_GetPin(sequenceNumber);
-  Adafruit_MCP23017& chip = Valve_GetChip(sequenceNumber);
+void Valve_Close(int position) {
+  int pin = Valve_GetPin(position);
+  Adafruit_MCP23017& chip = Valve_GetChip(position);
   chip.digitalWrite(pin, LOW);
 }
 
 void Valve_CloseAll() {
-  for (int i = 1; i <= Valve_Count; ++i) {
-    Valve_Close(i);
+  for (int position = minPosition; position <= maxPosition; ++position) {
+    Valve_Close(position);
   }
 }
 
-void Valve_Drip(int sequenceNumber, int dripCount) {
+void Valve_Drip(int position, int dripCount) {
   for (int i = 1; i <= dripCount; ++i) {
-    Valve_Open(sequenceNumber);
+    Valve_Open(position);
     delay(dripMillisecondsOpen);
-    Valve_Close(sequenceNumber);
+    Valve_Close(position);
     delay(dripMillisecondsClosed); 
   }
 }
 
 
 void Light_Setup() {
-  for (int i = 1; i <= Light_Count; ++i) {
-    int pin = Light_GetPin(i);
-    Adafruit_MCP23017& chip = Light_GetChip(i);
+  for (int position = minPosition; position <= maxPosition; ++position) {
+    int pin = Light_GetPin(position);
+    Adafruit_MCP23017& chip = Light_GetChip(position);
     chip.pinMode(pin, OUTPUT);
   }
 }
 
-int Light_GetPin(int sequenceNumber) {
-  switch (sequenceNumber) {
+int Light_GetPin(int position) {
+  switch (position) {
     case 1:  return 11;
     case 2:  return 12;
     case 3:  return 13;
@@ -130,8 +128,8 @@ int Light_GetPin(int sequenceNumber) {
   }
 }
 
-Adafruit_MCP23017& Light_GetChip(int sequenceNumber) {
-  if (sequenceNumber <=5) {
+Adafruit_MCP23017& Light_GetChip(int position) {
+  if (position <=5) {
     return mcpA;
   }
   else {
@@ -139,42 +137,42 @@ Adafruit_MCP23017& Light_GetChip(int sequenceNumber) {
   }
 }
 
-void Light_TurnOn(int sequenceNumber) {
-  int pin = Light_GetPin(sequenceNumber);
-  Adafruit_MCP23017& chip = Light_GetChip(sequenceNumber);
+void Light_TurnOn(int position) {
+  int pin = Light_GetPin(position);
+  Adafruit_MCP23017& chip = Light_GetChip(position);
   return chip.digitalWrite(pin, HIGH);
 }
 
-void Light_TurnOff(int sequenceNumber) {
-  int pin = Light_GetPin(sequenceNumber);
-  Adafruit_MCP23017& chip = Light_GetChip(sequenceNumber);
+void Light_TurnOff(int position) {
+  int pin = Light_GetPin(position);
+  Adafruit_MCP23017& chip = Light_GetChip(position);
   return chip.digitalWrite(pin, LOW);
 }
 
 void Light_TurnOffAll() {
-  for (int i = 1; i <= Light_Count; ++i) {
-    Light_TurnOff(i);
+  for (int position = minPosition; position <= maxPosition; ++position) {
+    Light_TurnOff(position);
   }
 }
 
-void Light_Blink(int sequenceNumber) {
-  Light_TurnOn(sequenceNumber);
+void Light_Blink(int position) {
+  Light_TurnOn(position);
   delay(blinkMillisecondsOn);
-  Light_TurnOff(sequenceNumber);
+  Light_TurnOff(position);
   delay(blinkMillisecondsOff);
 }
 
 
 void Button_Setup() {
-  for (int i = 1; i <= Button_Count; ++i) {
-    int pin = Button_GetPin(i);
-    Adafruit_MCP23017& chip = Button_GetChip(i);
+  for (int position = 1; position <= maxPosition; ++position) {
+    int pin = Button_GetPin(position);
+    Adafruit_MCP23017& chip = Button_GetChip(position);
     chip.pinMode(pin, INPUT);
   }
 }
 
-int Button_GetPin(int sequenceNumber) {
-  switch (sequenceNumber) {
+int Button_GetPin(int position) {
+  switch (position) {
     case 1:  return 1;
     case 2:  return 2;
     case 3:  return 3;
@@ -188,21 +186,21 @@ int Button_GetPin(int sequenceNumber) {
   }
 }
 
-Adafruit_MCP23017& Button_GetChip(int sequenceNumber) {
+Adafruit_MCP23017& Button_GetChip(int position) {
   return mcpB;
 }
 
-bool Button_IsPressed(int sequenceNumber) {
-  int pin = Button_GetPin(sequenceNumber);
-  Adafruit_MCP23017& chip = Button_GetChip(sequenceNumber);
+bool Button_IsPressed(int position) {
+  int pin = Button_GetPin(position);
+  Adafruit_MCP23017& chip = Button_GetChip(position);
   return chip.digitalRead(pin);
 }
 
 int Button_Scan() {
   while (true) {
-    for (int i = 1; i <= Button_Count; ++i) {
-      if (Button_IsPressed(i)) {
-        return i;
+    for (int position = minPosition; position <= maxPosition; ++position) {
+      if (Button_IsPressed(position)) {
+        return position;
       }
     }
   }
