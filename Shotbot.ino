@@ -12,6 +12,28 @@ const int blinkMillisecondsOff = 500;
 const int minPosition = 1;
 const int maxPosition = 10;
 
+// pin 11 of 74HC595 (SHCP)
+const int bit_clock_pin = 11;
+// pin 12 of 74HC595 (STCP)
+const int digit_clock_pin = 12;
+// pin 14 of 74HC595 (DS)
+const int data_pin = 2;
+
+// digit pattern for a 7-segment display
+const byte digit_pattern[10] =
+{
+  B01111111,  // 0
+  B00001101,  // 1
+  B10110111,  // 2
+  B10011111,  // 3
+  B11001101,  // 4
+  B11011011,  // 5
+  B11111011,  // 6
+  B00001111,  // 7
+  B11111111,  // 8
+  B11011111,  // 9
+};
+
 void setup() {
   //set the I2C address for MCP chip A and B
   mcpA.begin(1);
@@ -27,6 +49,12 @@ void setup() {
   //Set the LED output pins
   Light_Setup();
   Light_TurnOffAll();
+
+  //set up seven segment display
+  pinMode(data_pin, OUTPUT);
+  pinMode(bit_clock_pin, OUTPUT);
+  pinMode(digit_clock_pin, OUTPUT);  
+  update_one_digit(dripCount);
 }
 
 void loop() {
@@ -48,6 +76,25 @@ void loop() {
   //sanity check
   Valve_CloseAll();
   Light_TurnOffAll();
+}
+
+//set the value on seven-segment display
+void update_one_digit(int data)
+{
+  int i;
+  byte pattern;
+  
+  // get the digit pattern to be updated
+  pattern = digit_pattern[data];
+
+  // turn off the output of 74HC595
+  digitalWrite(digit_clock_pin, LOW);
+  
+  // update data pattern to be outputed from 74HC595
+  shiftOut(data_pin, bit_clock_pin, MSBFIRST, pattern);
+  
+  // turn on the output of 74HC595
+  digitalWrite(digit_clock_pin, HIGH);
 }
 
 int Valve_GetPin(int position) {
