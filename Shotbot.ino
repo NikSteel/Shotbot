@@ -13,9 +13,9 @@ const int minPosition = 1;
 const int maxPosition = 10;
 
 // pin 11 of 74HC595 (SHCP)
-const int bit_clock_pin = 11;
+const int bit_clock_pin = 4;
 // pin 12 of 74HC595 (STCP)
-const int digit_clock_pin = 12;
+const int digit_clock_pin = 3;
 // pin 14 of 74HC595 (DS)
 const int data_pin = 2;
 
