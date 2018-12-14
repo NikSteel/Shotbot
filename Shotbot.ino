@@ -52,16 +52,16 @@ void loop() {
 
 int Valve_GetPin(int position) {
   switch (position) {
-    case 1:  return 9;
-    case 2:  return 10;
-    case 3:  return 11;
-    case 4:  return 12;
-    case 5:  return 13;
-    case 6:  return 14;
-    case 7:  return 15;
-    case 8:  return 16;
-    case 9:  return 7;
-    case 10: return 8;
+    case 1:  return 8;
+    case 2:  return 9;
+    case 3:  return 10;
+    case 4:  return 11;
+    case 5:  return 12;
+    case 6:  return 13;
+    case 7:  return 14;
+    case 8:  return 15;
+    case 9:  return 0;
+    case 10: return 1;
   }
 }
 
@@ -115,16 +115,16 @@ void Light_Setup() {
 
 int Light_GetPin(int position) {
   switch (position) {
-    case 1:  return 11;
-    case 2:  return 12;
-    case 3:  return 13;
-    case 4:  return 14;
-    case 5:  return 15;
-    case 6:  return 16;
-    case 7:  return 5;
-    case 8:  return 6;
-    case 9:  return 7;
-    case 10: return 8;
+    case 1:  return 10;
+    case 2:  return 11;
+    case 3:  return 12;
+    case 4:  return 13;
+    case 5:  return 14;
+    case 6:  return 15;
+    case 7:  return 4;
+    case 8:  return 5;
+    case 9:  return 6;
+    case 10: return 7;
   }
 }
 
@@ -168,21 +168,22 @@ void Button_Setup() {
     int pin = Button_GetPin(position);
     Adafruit_MCP23017& chip = Button_GetChip(position);
     chip.pinMode(pin, INPUT);
+    chip.pullUp(pin, HIGH);
   }
 }
 
 int Button_GetPin(int position) {
   switch (position) {
-    case 1:  return 5;
-    case 2:  return 6;
-    case 3:  return 7;
-    case 4:  return 8;
-    case 5:  return 1;
-    case 6:  return 2;
-    case 7:  return 3;
-    case 8:  return 4;
-    case 9:  return 9;
-    case 10: return 10;
+    case 1:  return 4;
+    case 2:  return 5;
+    case 3:  return 6;
+    case 4:  return 7;
+    case 5:  return 0;
+    case 6:  return 1;
+    case 7:  return 2;
+    case 8:  return 3;
+    case 9:  return 8;
+    case 10: return 9;
   }
 }
 
@@ -193,7 +194,7 @@ Adafruit_MCP23017& Button_GetChip(int position) {
 bool Button_IsPressed(int position) {
   int pin = Button_GetPin(position);
   Adafruit_MCP23017& chip = Button_GetChip(position);
-  return chip.digitalRead(pin);
+  return chip.digitalRead(pin) == LOW;
 }
 
 int Button_Scan() {
