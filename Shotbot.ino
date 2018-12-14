@@ -34,6 +34,11 @@ const byte digit_pattern[10] =
   B11011111,  // 9
 };
 
+//pins for encoder
+const int encoder_movement_pin = 6;
+const int encoder_direction_pin = 7;
+const int encoder_milliseconds_debounce_delay = 300;
+
 void setup() {
   //set the I2C address for MCP chip A and B
   mcpA.begin(1);
@@ -55,6 +60,10 @@ void setup() {
   pinMode(bit_clock_pin, OUTPUT);
   pinMode(digit_clock_pin, OUTPUT);  
   update_one_digit(dripCount);
+
+  //set up encoder 
+  pinMode(encoder_movement_pin, INPUT_PULLUP);
+  pinMode(encoder_direction_pin, INPUT_PULLUP);
 }
 
 void loop() {
@@ -250,6 +259,19 @@ int Button_Scan() {
       if (Button_IsPressed(position)) {
         return position;
       }
+    }
+
+    //check for encoder input
+    if (digitalRead(encoder_movement_pin) == LOW) {
+      if (digitalRead(encoder_direction_pin) == HIGH) {
+        dripCount = (10 + dripCount + 1) % 10;
+      }
+      else {
+        dripCount = (10 + dripCount - 1) % 10;
+      }
+      //update the display
+      update_one_digit(dripCount);
+      delay(encoder_milliseconds_debounce_delay);
     }
   }
 }
